@@ -20,6 +20,15 @@ const initialHud: HudState = {
   reloading: false,
   reloadProgress: 0,
   hitConfirm: false,
+  weaponName: "VOLT-9",
+  altWeaponName: "BREACH-5",
+  altAmmo: 5,
+  muzzleFlash: false,
+  damageFlash: false,
+  damageDirection: 0,
+  stormIntensity: 0,
+  lightning: false,
+  mapStatus: "ready",
 };
 
 function timeLabel(seconds: number) {
@@ -34,6 +43,11 @@ export default function GameCanvas() {
   const [hud, setHud] = useState<HudState>(initialHud);
   const [stick, setStick] = useState({ x: 0, y: 0 });
   const [aimStick, setAimStick] = useState({ x: 0, y: 0 });
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [sensitivity, setSensitivity] = useState(1);
+  const [autoFire, setAutoFire] = useState(false);
+  const [largeControls, setLargeControls] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -72,6 +86,10 @@ export default function GameCanvas() {
     };
   }, []);
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("stormfall-controls", { detail: { autoFire, soundOn } }));
+  }, [autoFire, soundOn]);
+
   const launch = () => window.dispatchEvent(new Event("stormfall-start"));
   const restart = () => window.dispatchEvent(new Event("stormfall-restart"));
   const sendMobileMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -92,7 +110,7 @@ export default function GameCanvas() {
   };
   const sendMobileAim = (event: React.PointerEvent<HTMLDivElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
-    const max = bounds.width * 0.29;
+    const max = bounds.width * (0.42 - sensitivity * 0.13);
     const dx = event.clientX - (bounds.left + bounds.width / 2);
     const dy = event.clientY - (bounds.top + bounds.height / 2);
     const distance = Math.hypot(dx, dy);
@@ -119,21 +137,26 @@ export default function GameCanvas() {
     }
   };
   const reload = () => window.dispatchEvent(new Event("stormfall-reload"));
+  const swapWeapon = () => window.dispatchEvent(new Event("stormfall-switch-weapon"));
   const health = Math.max(0, Math.min(100, hud.health));
   const stormProgress = Math.max(0, Math.min(100, ((19 - hud.stormRadius) / 11) * 100));
   const ended = hud.matchState === "victory" || hud.matchState === "defeat";
 
   return (
-    <div className="game-shell">
+    <div className={`game-shell ${largeControls ? "large-controls" : ""}`}>
       <canvas ref={canvasRef} className="game-canvas" style={{ touchAction: "none" }} />
+      {hud.mapStatus !== "ready" && <div className={`map-loading ${hud.mapStatus}`}><span className="map-load-mark" /><p>{hud.mapStatus === "loading" ? "LINKING ROAD MAP" : "ROAD MAP READY"}</p><i>{hud.mapStatus === "loading" ? "STREAMING USER-PROVIDED MAP VISUAL" : "SCENE CONTINUES WITH THE PHOTO MAP"}</i></div>}
       <div className="rain-film" aria-hidden="true" />
-      {hud.matchState === "active" && <span className={`aim-reticle ${hud.hitConfirm ? "confirmed" : ""}`} aria-hidden="true"><i /><b /></span>}
+      <div className="storm-veil" style={{ opacity: 0.05 + hud.stormIntensity * 0.32 }} aria-hidden="true" />
+      <div className={`lightning-flash ${hud.lightning ? "active" : ""}`} aria-hidden="true" />
+      <div className={`damage-vignette ${hud.damageFlash ? "active" : ""}`} aria-hidden="true" />
+      {hud.matchState === "active" && <span className={`aim-reticle ${hud.hitConfirm ? "confirmed" : ""} ${hud.muzzleFlash ? "muzzle" : ""}`} aria-hidden="true"><i /><b /></span>}
 
       <header className="game-topbar">
         <div className="brand-lockup">
           <span className="brand-mark" aria-hidden="true"><i /></span>
           <div>
-            <p className="eyebrow">SABLE RIDGE // SURVIVAL PROTOCOL</p>
+            <p className="eyebrow">BREAKWATER REACH // SURVIVAL PROTOCOL</p>
             <p className="brand-wordmark">STORMFALL <span>ARENA</span></p>
           </div>
         </div>
@@ -141,7 +164,18 @@ export default function GameCanvas() {
           <span className="live-dot" />
           <span>{hud.matchState === "active" ? "LIVE SIGNAL" : "FIELD LINK"}</span>
         </div>
+        <button className="settings-trigger" onClick={() => setSettingsOpen((open) => !open)} aria-expanded={settingsOpen} aria-label="Open field settings">⚙</button>
       </header>
+
+      {settingsOpen && (
+        <section className="settings-panel hud-panel" aria-label="Field settings">
+          <div className="settings-heading"><span>FIELD SETTINGS</span><button onClick={() => setSettingsOpen(false)} aria-label="Close field settings">×</button></div>
+          <label> AIM RESPONSE <strong>{sensitivity.toFixed(1)}×</strong><input type="range" min="0.6" max="1.5" step="0.1" value={sensitivity} onChange={(event) => setSensitivity(Number(event.target.value))} /></label>
+          <label className="settings-toggle"><input type="checkbox" checked={autoFire} onChange={(event) => setAutoFire(event.target.checked)} /><span>AUTO FIRE WHEN AIMING</span></label>
+          <label className="settings-toggle"><input type="checkbox" checked={largeControls} onChange={(event) => setLargeControls(event.target.checked)} /><span>LARGE TOUCH CONTROLS</span></label>
+          <label className="settings-toggle"><input type="checkbox" checked={soundOn} onChange={(event) => setSoundOn(event.target.checked)} /><span>FIELD AUDIO</span></label>
+        </section>
+      )}
 
       <aside className="vitals-panel hud-panel" aria-label="Player vitals">
         <div className="panel-heading"><span>VITALS</span><span>{Math.round(health)}%</span></div>
@@ -166,16 +200,24 @@ export default function GameCanvas() {
         <span>{hud.toast}</span>
       </section>
 
+      <section className="coast-scan hud-panel" aria-label="Breakwater Reach field legend">
+        <p>BREAKWATER GRID // 07</p>
+        <div><i className="scan-amber" /> HARBOR ROUTE <i className="scan-violet" /> STORM EDGE</div>
+        <span>MARINA · RIVER CUT · PARKLINE</span>
+      </section>
+
+
       <section className="controls-panel hud-panel" aria-label="Game controls">
         <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>MOVE</span></div>
         <div><kbd>CLICK</kbd><span>FIRE</span></div><div><kbd>R</kbd><span>RELOAD</span></div>
       </section>
 
       <section className={`weapon-panel hud-panel ${hud.reloading ? "is-reloading" : ""}`} aria-label="Weapon status">
-        <div className="weapon-heading"><span>VOLT-9</span>{hud.hitConfirm && <b>HIT</b>}</div>
+        <div className="weapon-heading"><span>{hud.weaponName}</span>{hud.hitConfirm && <b>HIT</b>}</div>
         <div className="ammo-row"><strong>{String(hud.ammo).padStart(2, "0")}</strong><span>/ {String(hud.reserve).padStart(2, "0")}</span></div>
         <div className="reload-track"><i style={{ width: `${hud.reloading ? hud.reloadProgress : 0}%` }} /></div>
-        <button className="reload-button" onClick={reload} disabled={hud.reloading || hud.ammo === 12 || hud.reserve === 0}>{hud.reloading ? "RELOADING" : "RELOAD"}</button>
+        <button className="reload-button" onClick={reload} disabled={hud.reloading || hud.reserve === 0}>{hud.reloading ? "RELOADING" : "RELOAD"}</button>
+        <button className="weapon-swap" onClick={swapWeapon}><span>{hud.altWeaponName}</span><b>{hud.altAmmo}</b><i>SWAP</i></button>
       </section>
 
       {hud.matchState === "active" && (
@@ -208,13 +250,13 @@ export default function GameCanvas() {
               <span className="aim-range" /><span className="aim-thumb" style={{ transform: `translate(${aimStick.x}px, ${aimStick.y}px)` }} /><span>AIM</span>
             </div>
             <button
-              className="mobile-fire"
+              className={`mobile-fire ${autoFire ? "auto" : ""}`}
               onPointerDown={startMobileFire}
               onPointerUp={stopMobileFire}
               onPointerCancel={stopMobileFire}
               onPointerLeave={stopMobileFire}
             >
-              <span>HOLD</span><strong>FIRE</strong><b>↗</b>
+              <span>{autoFire ? "AUTO" : "HOLD"}</span><strong>FIRE</strong><b>↗</b>
             </button>
           </div>
         </section>
@@ -225,7 +267,7 @@ export default function GameCanvas() {
         <div className="map-ring map-ring-two" />
         <span className="map-player" />
         <i className="map-rival one" /><i className="map-rival two" /><i className="map-rival three" /><i className="map-rival four" />
-        <p>SABLE RIDGE // 07</p>
+        <p>BREAKWATER REACH // 07</p>
       </section>
 
       {hud.matchState === "briefing" && (

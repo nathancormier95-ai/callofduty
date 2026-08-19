@@ -1,6 +1,12 @@
 # Assets
 
-**Art direction:** Voltage Wilds — a clean, stylized cinematic top-down survival arena. The environment is muted blue-slate, charcoal, and evergreen; player agency is weathered signal amber; rivals are coral-red; the advancing storm is saturated violet. Shapes are angular, readable, and sparse enough to retain tactical clarity. The finalized in-game fallbacks use procedural geometry and materials while the generated reference assets complete in the background.
+**Art direction:** Voltage Wilds — an original tactical survival arena with a user-supplied campus terrain, weathered signal amber for player agency, coral-red rivals, and a saturated violet storm boundary. The GLB map provides the primary visible terrain; the procedural systems continue to provide gameplay actors, pickups, and storm pressure.
+
+## User-Supplied 3D Map
+
+| Name | Source | Format | Size | Deployment URL | Role |
+| --- | --- | --- | --- | --- | --- |
+| Atlas Sector terrain scan | User-uploaded optimized GLB | GLB / glTF 2.0 | 2.2 MB | `/manus-storage/atlas-sector-user-optimized_415eddfe.glb` | Primary game-map terrain, centered and scaled to the playable arena. The larger alternate upload is not used because its coordinate bounds are unsuitable for this browser arena. |
 
 ## Textures
 

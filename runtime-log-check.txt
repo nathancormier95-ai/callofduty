@@ -1,0 +1,45 @@
+[2026-08-16T18:41:03.169Z] Starting dev server with command: pnpm run dev
+[2026-08-16T18:41:04.322Z] > stormfall-arena@1.0.0 dev /home/ubuntu/stormfall-arena
+[2026-08-16T18:41:04.322Z] > vite --host
+[2026-08-16T18:41:04.623Z] VITE v7.1.9  ready in 271 ms
+[2026-08-16T18:41:04.623Z] ➜  Local:   http://localhost:3000/
+[2026-08-16T18:41:04.623Z] ➜  Network: http://169.254.0.21:3000/
+[2026-08-16T18:42:50.629Z] ELIFECYCLE  Command failed.
+[2026-08-16T18:42:50.648Z] Dev server exited with code -1
+[2026-08-16T18:42:51.738Z] Starting dev server with command: pnpm run dev
+[2026-08-16T18:42:52.076Z] > stormfall-arena@1.0.0 dev /home/ubuntu/stormfall-arena
+[2026-08-16T18:42:52.077Z] > vite --host
+[2026-08-16T18:42:52.294Z] 6:42:52 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
+[2026-08-16T18:42:52.324Z] VITE v7.1.9  ready in 225 ms
+[2026-08-16T18:42:52.324Z] ➜  Local:   http://localhost:3000/
+[2026-08-16T18:42:52.325Z] ➜  Network: http://169.254.0.21:3000/
+[2026-08-16T18:42:53.897Z] [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[2026-08-16T18:45:36.705Z] 6:45:36 PM [vite] (client) hmr update /src/App.tsx, /src/index.css
+[2026-08-16T18:45:41.545Z] 6:45:41 PM [vite] (client) page reload index.html
+[2026-08-16T18:46:14.713Z] 6:46:14 PM [vite] (client) hmr update /src/index.css
+[2026-08-16T18:46:38.122Z] [vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+[2026-08-16T18:46:38.123Z] 3535 |    }
+[2026-08-16T18:46:38.123Z] 3536 |  }
+[2026-08-16T18:46:38.123Z] 3537 |  @import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family...
+[2026-08-16T18:46:38.123Z] |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-16T18:46:38.123Z] 3538 |  :root {
+[2026-08-16T18:46:38.123Z] 3539 |    font-family: "DM Sans", sans-serif;
+[2026-08-16T18:46:39.560Z] 6:46:39 PM [vite] (client) ✨ new dependencies optimized: @babylonjs/core/Engines/engine, @babylonjs/core/Maths/math.color, @babylonjs/core/Maths/math.vector, @babylonjs/core/scene, @babylonjs/core/Cameras/freeCamera, @babylonjs/core/Lights/hemisphericLight, @babylonjs/core/Lights/pointLight, @babylonjs/core/Layers/glowLayer, @babylonjs/core/Meshes/mesh, @babylonjs/core/Meshes/meshBuilder, @babylonjs/core/Materials/standardMaterial, @babylonjs/core/Materials/Textures/texture, @babylonjs/core/Events/pointerEvents
+[2026-08-16T18:46:39.560Z] 6:46:39 PM [vite] (client) ✨ optimized dependencies changed. reloading
+[2026-08-16T18:46:39.687Z] [vite:css][postcss] @import must precede all other statements (besides @charset or empty @layer)
+[2026-08-16T18:46:39.687Z] 3535 |    }
+[2026-08-16T18:46:39.687Z] 3536 |  }
+[2026-08-16T18:46:39.687Z] 3537 |  @import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family...
+[2026-08-16T18:46:39.687Z] |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2026-08-16T18:46:39.687Z] 3538 |  :root {
+[2026-08-16T18:46:39.687Z] 3539 |    font-family: "DM Sans", sans-serif;
+--- browser console ---
+[2026-08-16T18:42:56.122Z] {"timestamp":1786905774119,"level":"DEBUG","args":["[Manus] Debug collector initialized (no rrweb, UI events only)"],"stack":null}
+[2026-08-16T18:42:56.122Z] {"timestamp":1786905774127,"level":"DEBUG","args":["[vite] connected."],"stack":null}
+[2026-08-16T18:42:56.122Z] {"timestamp":1786905774720,"level":"INFO","args":["%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools","font-weight:bold"],"stack":null}
+[2026-08-16T18:46:39.731Z] {"timestamp":1786905998079,"level":"DEBUG","args":["[Manus] Debug collector initialized (no rrweb, UI events only)"],"stack":null}
+[2026-08-16T18:46:39.731Z] {"timestamp":1786905998099,"level":"DEBUG","args":["[vite] connected."],"stack":null}
+[2026-08-16T18:46:41.887Z] {"timestamp":1786905999749,"level":"DEBUG","args":["[Manus] Debug collector initialized (no rrweb, UI events only)"],"stack":null}
+[2026-08-16T18:46:41.887Z] {"timestamp":1786905999770,"level":"DEBUG","args":["[vite] connected."],"stack":null}
+[2026-08-16T18:46:41.887Z] {"timestamp":1786905999849,"level":"INFO","args":["%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools","font-weight:bold"],"stack":null}
+[2026-08-16T18:46:41.887Z] {"timestamp":1786906000007,"level":"LOG","args":["BJS - [18:46:40]: Babylon.js v9.21.2 - WebGL2"],"stack":null}

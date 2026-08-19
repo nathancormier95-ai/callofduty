@@ -74,6 +74,14 @@ The wordmark uses a custom, condensed all-caps construction with a split lightni
 - The initial viewport simultaneously shows the arena geometry, a violet storm boundary, an amber player/action signal, and a corner-based tactical HUD.
 - Storm Signal Amber is reserved for player agency, pickups, primary actions, and essential survival cues; it is never general decoration.
 - The Stormfall Arena wordmark remains condensed, all-caps, and tactical, using the amber-bolt / storm-ring motif rather than a neutral typed treatment.
+- Atlas Sector uses a deep storm-night field behind the imported terrain so amber survival cues, coral rivals, violet boundary pressure, and readable terrain silhouettes retain priority.
+- Breakwater Reach opens with a visible coastal structure, amber navigation cue, violet storm cue, and compact field-manual legend, even while map terrain is streaming.
+
+## Coastal Harbor-Town Translation
+
+The current map rebuild treats the user-supplied aerial image as a **broad spatial prompt only**, not a location to reproduce. Atlas Sector becomes an original storm-battered harbor town called **Breakwater Reach**. Its map is organized around a crescent outer bay, a narrow river cut, a compact marina, a shuttered freight yard, hillside row homes, and an autumn park peninsula. There are no copied labels, satellite tiles, roads, or building footprints.
+
+The world remains within Voltage Wilds: dark tidewater carries the violet storm reflection, amber navigation beacons indicate player routes, coral distress lights mark danger, and deep blue-green tree masses frame the town. The shoreline, piers, warehouses, streets, and parkland are all stylized procedural geometry made for readable third-person survival combat.
 
 ## Frontier-Recon Visual Translation
 

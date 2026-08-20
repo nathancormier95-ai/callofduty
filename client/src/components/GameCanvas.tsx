@@ -1,4 +1,4 @@
-// Lakeside Park visual system: daylight road arena, corner-bound field instruments,
+// Federation Street visual system: photo-based daylight neighborhood, corner-bound field instruments,
 // Barlow Condensed urgency, DM Sans support copy, signal amber for player agency.
 // React is the picture frame; Babylon and client/src/game/scene.ts own the game.
 
@@ -157,7 +157,7 @@ export default function GameCanvas() {
         <div className="brand-lockup">
           <span className="brand-mark" aria-hidden="true"><i /></span>
           <div>
-            <p className="eyebrow">LAKESIDE PARK // SURVIVAL PROTOCOL</p>
+            <p className="eyebrow">FEDERATION STREET // EXPLORATION ROUTE</p>
             <p className="brand-wordmark">STORMFALL <span>ARENA</span></p>
           </div>
         </div>
@@ -202,9 +202,9 @@ export default function GameCanvas() {
       </section>
 
       <section className="coast-scan hud-panel" aria-label="Lakeside Park field legend">
-        <p>LAKESIDE PARK // 07</p>
-        <div><i className="scan-amber" /> SHORE ROAD <i className="scan-violet" /> STORM EDGE</div>
-        <span>BEACH · CAMPGROUND · HILL ROUTE</span>
+        <p>FEDERATION STREET // 07</p>
+        <div><i className="scan-amber" /> NEIGHBORHOOD ROUTE <i className="scan-violet" /> FIELD TRAIL</div>
+        <span>YARDS · WOODLOT · SHORE EDGE</span>
       </section>
 
 
@@ -268,7 +268,7 @@ export default function GameCanvas() {
         <div className="map-ring map-ring-two" />
         <span className="map-player" />
         <i className="map-rival one" /><i className="map-rival two" /><i className="map-rival three" /><i className="map-rival four" />
-        <p>LAKESIDE PARK // 07</p>
+        <p>FEDERATION ST // 07</p>
       </section>
 
       {hud.matchState === "briefing" && (

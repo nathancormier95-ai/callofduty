@@ -97,6 +97,14 @@
 - [x] Pause all rival spawning, AI movement, attacks, and rival-count presentation.
 - [x] Preserve player movement, map exploration, pickups, and the daylight Lakeside Park environment.
 - [x] Verify enemy-free exploration on desktop and mobile, then publish and synchronize the source.
+
+## Federation Street Photo Neighborhood Map
+
+- [x] Upload every supplied residential street, field, and aerial reference photo through deployment-safe storage.
+- [x] Translate the aerial references into a main curving road, left branch, residential spur, wooded waterfront edge, and open field-trail connection.
+- [x] Replace the divided highway/campground visuals with narrow unmarked neighborhood asphalt, grass verges, driveways, yards, homes, bins, and a structured utility-pole corridor.
+- [x] Use the supplied street-level photos as visible rotating/backdrop reference points along the route, while retaining peaceful exploration and pickups.
+- [x] Verify the neighborhood map on desktop and mobile, then publish and synchronize the source.
 - [ ] Inspect the uploaded fog map asset and determine its file format and compatibility.
 - [ ] Review the supplied Sketchfab model page and identify its licensing and supported download options.
 - [ ] Design an original storm-battered industrial waterfront map that does not replicate a named commercial game or third-party environment.

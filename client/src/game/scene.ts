@@ -63,6 +63,12 @@ const violet = new Color3(0.53, 0.28, 1.0);
 const charcoal = new Color3(0.06, 0.08, 0.12);
 const uploadedMapUrl = "/manus-storage/atlas-sector-user-optimized_415eddfe.glb";
 const uploadedRoadPhotoUrl = "/manus-storage/breakwater-lakeside-road_48f1d55e.jpg";
+const federationRoadPhotoUrl = "/manus-storage/Screenshot_20260820_105936_GoogleEarth_0cceee2e.jpg";
+const federationCurvePhotoUrl = "/manus-storage/Screenshot_20260820_105909_GoogleEarth_1951288f.jpg";
+const federationFieldPhotoUrl = "/manus-storage/Screenshot_20260820_110009_GoogleEarth_317f4606.jpg";
+const federationYardPhotoUrl = "/manus-storage/Screenshot_20260820_105842_GoogleEarth_4f694ce3.jpg";
+const federationLanePhotoUrl = "/manus-storage/Screenshot_20260820_105821_GoogleEarth_7cbdfb47.jpg";
+const federationAerialPhotoUrl = "/manus-storage/Screenshot_20260820_111133_GoogleEarth_0340d014.jpg";
 
 function distance(a: Vector3, b: Vector3) { return Math.hypot(a.x - b.x, a.z - b.z); }
 
@@ -93,8 +99,8 @@ class GameWorld {
   private enemies: Actor[] = [];
   private projectiles: Projectile[] = [];
   private pickups: Pickup[] = [];
-  private readonly playerSpawn = new Vector3(3.55, 0.8, -16.8);
-  private readonly coverNodes = [new Vector3(9.2, 0, -10.8), new Vector3(-9.2, 0, -8.8), new Vector3(9.4, 0, -1.5), new Vector3(-9.3, 0, 3.8), new Vector3(9.4, 0, 8.5), new Vector3(-9.2, 0, 14.6)];
+  private readonly playerSpawn = new Vector3(0.8, 0.8, -21.0);
+  private readonly coverNodes = [new Vector3(5.8, 0, -13.4), new Vector3(-6.1, 0, -5.0), new Vector3(6.0, 0, 2.2), new Vector3(-10.4, 0, 6.8), new Vector3(5.7, 0, 12.5), new Vector3(-13.0, 0, 16.4)];
   private readonly peacefulExploration = true;
   private pressed = new Set<string>();
   private mobileMovement = new Vector3(0, 0, 0);
@@ -123,7 +129,7 @@ class GameWorld {
   private audioContext?: AudioContext;
   private ambientOscillator?: OscillatorNode;
   private streak = 0;
-  private toast = "BREAKWATER RELAY UPLINK ACQUIRED";
+  private toast = "FEDERATION STREET PHOTO ROUTE READY";
   private mapStatus: HudState["mapStatus"] = "ready";
   private hudElapsed = 0;
   private demo = new URLSearchParams(window.location.search).has("demo");
@@ -191,11 +197,11 @@ class GameWorld {
       visibleMeshes.forEach((mesh) => { mesh.setEnabled(false); });
       this.ground.visibility = 1;
       this.mapStatus = "ready";
-      this.toast = "LAKESIDE PARK ROAD MAP READY";
+      this.toast = "FEDERATION STREET MAP READY";
     } catch (error) {
       console.warn("Uploaded GLB map did not load; retaining the procedural arena.", error);
       this.mapStatus = "ready";
-      this.toast = "LAKESIDE PARK ROAD MAP ACTIVE";
+      this.toast = "FEDERATION STREET MAP ACTIVE";
     }
     this.emitHud();
   }
@@ -231,7 +237,7 @@ class GameWorld {
     signalLight.range = 15;
     new GlowLayer("outpostGlow", this.scene, { blurKernelSize: 28 }).intensity = 0.11;
 
-    return this.createLakesideParkEnvironment();
+    return this.createFederationStreetEnvironment();
 
     const sandstone = material(this.scene, "coastalStoneMat", new Color3(0.23, 0.22, 0.19), new Color3(0.018, 0.018, 0.015));
     const weathered = material(this.scene, "harborWallMat", new Color3(0.15, 0.22, 0.25), new Color3(0.009, 0.016, 0.02));
@@ -437,6 +443,97 @@ class GameWorld {
     return ground;
   }
 
+  /** Federation Street visual system: user-photo residential lanes, wooded yards, branches, field trail, and waterfront edge. */
+  private createFederationStreetEnvironment() {
+    const grass = material(this.scene, "federationGrassMat", new Color3(0.20, 0.43, 0.12), new Color3(0.018, 0.038, 0.008));
+    const roughGrass = material(this.scene, "federationRoughGrassMat", new Color3(0.30, 0.47, 0.16), new Color3(0.022, 0.036, 0.008));
+    const asphalt = material(this.scene, "federationAsphaltMat", new Color3(0.31, 0.31, 0.29), new Color3(0.008, 0.008, 0.007));
+    const gravel = material(this.scene, "federationGravelMat", new Color3(0.44, 0.42, 0.36), new Color3(0.012, 0.011, 0.008));
+    const dirt = material(this.scene, "federationTrailMat", new Color3(0.48, 0.40, 0.26), new Color3(0.016, 0.012, 0.006));
+    const poleMat = material(this.scene, "federationPoleMat", new Color3(0.38, 0.38, 0.34), new Color3(0.018, 0.018, 0.014));
+    const trunkMat = material(this.scene, "federationTrunkMat", new Color3(0.22, 0.16, 0.09), new Color3(0.01, 0.006, 0.003));
+    const water = material(this.scene, "federationWaterMat", new Color3(0.05, 0.30, 0.38), new Color3(0.02, 0.10, 0.14));
+    water.specularColor = new Color3(0.72, 0.84, 0.88); water.specularPower = 80;
+    const ground = MeshBuilder.CreateGround("federationNeighborhoodLand", { width: 82, height: 82, subdivisions: 2 }, this.scene);
+    ground.material = grass; ground.isPickable = true;
+    const surface = (name: string, x: number, z: number, width: number, depth: number, mat: StandardMaterial, rotation = 0, y = 0.09) => {
+      const mesh = MeshBuilder.CreateBox(name, { width, height: 0.10, depth }, this.scene);
+      mesh.position.set(x, y, z); mesh.rotation.y = rotation; mesh.material = mat; return mesh;
+    };
+    const tree = (name: string, x: number, z: number, scale: number, shade: Color3) => {
+      const trunk = MeshBuilder.CreateCylinder(`${name}Trunk`, { height: 3.1 * scale, diameter: 0.28 * scale, tessellation: 8 }, this.scene);
+      trunk.position.set(x, 1.55 * scale, z); trunk.material = trunkMat;
+      const crown = MeshBuilder.CreateSphere(`${name}Crown`, { diameter: 3.0 * scale, segments: 9 }, this.scene);
+      crown.position.set(x, 3.8 * scale, z); crown.scaling.set(0.92, 1.14, 0.96); crown.material = material(this.scene, `${name}LeafMat`, shade, shade.scale(0.035));
+    };
+    const house = (name: string, x: number, z: number, width: number, depth: number, bodyTint: Color3, roofTint: Color3, rotation = 0) => {
+      const body = MeshBuilder.CreateBox(`${name}Body`, { width, height: 2.5, depth }, this.scene);
+      body.position.set(x, 1.25, z); body.rotation.y = rotation; body.material = material(this.scene, `${name}BodyMat`, bodyTint, bodyTint.scale(0.025));
+      const roof = MeshBuilder.CreateBox(`${name}Roof`, { width: width + 0.46, height: 0.30, depth: depth + 0.46 }, this.scene);
+      roof.parent = body; roof.position.set(0, 1.38, 0); roof.rotation.z = 0.15; roof.material = material(this.scene, `${name}RoofMat`, roofTint, roofTint.scale(0.025));
+      const porch = MeshBuilder.CreateBox(`${name}Porch`, { width: width * 0.35, height: 0.18, depth: 0.72 }, this.scene);
+      porch.parent = body; porch.position.set(0, -1.12, -depth * 0.52); porch.material = gravel;
+      const window = MeshBuilder.CreateBox(`${name}Window`, { width: width * 0.22, height: 0.68, depth: 0.05 }, this.scene);
+      window.parent = body; window.position.set(width * 0.22, 0.18, -depth * 0.51); window.material = material(this.scene, `${name}WindowMat`, new Color3(0.15, 0.36, 0.42), new Color3(0.018, 0.07, 0.08));
+    };
+    const utilityPole = (name: string, x: number, z: number, height = 9.4) => {
+      const pole = MeshBuilder.CreateCylinder(`${name}Pole`, { height, diameter: 0.16, tessellation: 8 }, this.scene);
+      pole.position.set(x, height / 2, z); pole.material = poleMat;
+      const cross = MeshBuilder.CreateBox(`${name}Crossbar`, { width: 2.05, height: 0.12, depth: 0.16 }, this.scene);
+      cross.position.set(x, height - 1.0, z); cross.material = poleMat;
+    };
+    const trashBin = (name: string, x: number, z: number) => {
+      const bin = MeshBuilder.CreateBox(name, { width: 0.46, height: 0.78, depth: 0.38 }, this.scene);
+      bin.position.set(x, 0.39, z); bin.material = material(this.scene, `${name}Mat`, new Color3(0.06, 0.22, 0.52), new Color3(0.006, 0.018, 0.05));
+      const lid = MeshBuilder.CreateBox(`${name}Lid`, { width: 0.50, height: 0.08, depth: 0.42 }, this.scene);
+      lid.parent = bin; lid.position.set(0, 0.43, 0); lid.material = poleMat;
+    };
+    const photoBackdrop = (name: string, url: string, x: number, z: number, width: number, height: number, rotation = 0) => {
+      const photoMat = new StandardMaterial(`${name}Mat`, this.scene);
+      const photo = new Texture(url, this.scene, false, true, Texture.TRILINEAR_SAMPLINGMODE);
+      photoMat.diffuseTexture = photo; photoMat.emissiveTexture = photo; photoMat.specularColor = Color3.Black(); photoMat.backFaceCulling = false;
+      const plane = MeshBuilder.CreatePlane(name, { width, height }, this.scene);
+      plane.position.set(x, -3.0, z); plane.rotation.y = rotation; plane.material = photoMat;
+    };
+
+    // The aerial plan resolves into a narrow, unmarked main street, a left residential fork, and a field-trail route.
+    surface("federationMainStreet", 0, 0, 7.1, 67, asphalt);
+    surface("federationNorthBend", 2.8, 23.8, 7.0, 20, asphalt, 0.22);
+    surface("federationWestFork", -10.8, 7.0, 6.5, 27, asphalt, 1.02);
+    surface("federationEastSpur", 10.8, -3.4, 6.0, 21, asphalt, -1.05);
+    surface("federationFieldTrailA", -19.0, 16.2, 3.5, 25, dirt, 0.63, 0.075);
+    surface("federationFieldTrailB", -27.2, 24.3, 3.5, 19, dirt, -0.38, 0.075);
+    surface("federationFrontDrive", 7.2, -18.0, 4.2, 14, gravel, 0.03, 0.075);
+    surface("federationOpenField", -21.6, 5.0, 26, 38, roughGrass, 0, 0.045);
+    surface("federationWaterfront", 34.0, 19.0, 15, 39, water, 0, 0.03);
+
+    // Homes, lawns, bins, and driveway scales are taken from the supplied Federation Street views.
+    house("federationWhiteHouse", 9.5, 10.4, 5.4, 4.5, new Color3(0.83, 0.83, 0.78), new Color3(0.29, 0.19, 0.16), -0.10);
+    house("federationBrickHouse", 15.0, 15.2, 5.1, 4.2, new Color3(0.62, 0.23, 0.13), new Color3(0.20, 0.18, 0.16), -0.08);
+    house("federationBlueRoofHouse", -11.2, 17.5, 5.7, 4.6, new Color3(0.84, 0.84, 0.79), new Color3(0.10, 0.33, 0.56), 0.42);
+    house("federationLaneHouse", 10.8, -10.2, 5.0, 4.0, new Color3(0.74, 0.75, 0.70), new Color3(0.18, 0.23, 0.20), 0.04);
+    [[7.0, 7.1], [13.0, 13.0], [6.5, -10.0], [-7.0, 16.0], [18.0, 18.0]].forEach(([x, z], index) => trashBin(`federationBin${index}`, x, z));
+
+    const canopy = [new Color3(0.07, 0.30, 0.09), new Color3(0.12, 0.42, 0.12), new Color3(0.22, 0.38, 0.08), new Color3(0.10, 0.24, 0.12)];
+    [[-9, -25], [9, -23], [-10, -18], [11, -15], [-13, -10], [13, -7], [-16, 0], [15, 1], [-18, 8], [18, 9], [-25, 14], [22, 17], [-30, 25], [10, 27], [-4, 33], [15, 31], [-31, -4], [25, -3]].forEach(([x, z], index) => tree(`federationTree${index}`, x, z, 0.94 + (index % 3) * 0.11, canopy[index % canopy.length]));
+    [[-15, -25], [-15, -14], [-15, -3], [-15, 8], [-15, 19], [-15, 30]].forEach(([x, z], index) => utilityPole(`federationPoleLeft${index}`, x, z));
+    [[6.7, -20], [6.7, -9], [6.7, 2], [6.7, 13], [6.7, 24], [6.7, 33]].forEach(([x, z], index) => utilityPole(`federationPoleRoad${index}`, x, z, 9.9));
+    for (let z = -19; z <= 25; z += 11) {
+      const wire = MeshBuilder.CreateBox(`federationWire${z}`, { width: 0.05, height: 0.05, depth: 11.3 }, this.scene);
+      wire.position.set(6.7, 8.55, z); wire.material = poleMat;
+      const highWire = wire.clone(`federationWireHigh${z}`); highWire.position.x += 0.58; highWire.position.y += 0.34;
+    }
+
+    // Direct user photos define distinct street-level sections, without relying on a generic generated landscape.
+    photoBackdrop("federationMainRoadPhoto", federationRoadPhotoUrl, 0, 35.0, 30.5, 39.5);
+    photoBackdrop("federationCurveRoadPhoto", federationCurvePhotoUrl, -12.5, 23.5, 24.0, 32.0, -0.56);
+    photoBackdrop("federationFieldPhoto", federationFieldPhotoUrl, -31.0, 8.8, 20.5, 28.2, 0.68);
+    photoBackdrop("federationYardPhoto", federationYardPhotoUrl, 20.5, 18.5, 21.0, 29.0, -0.72);
+    photoBackdrop("federationLanePhoto", federationLanePhotoUrl, 0.4, 14.5, 23.5, 23.8);
+    photoBackdrop("federationAerialPhoto", federationAerialPhotoUrl, -1.0, -29.0, 23.0, 15.5, Math.PI);
+    return ground;
+  }
+
   /** Lakeside Park daylight visual system: literal photo composition, straight rising road, left shore, right campground. */
   private createLakesideParkEnvironment() {
     const grass = material(this.scene, "parkGrassMat", new Color3(0.18, 0.33, 0.12), new Color3(0.018, 0.034, 0.01));
@@ -566,6 +663,7 @@ class GameWorld {
   }
 
   private createSectorCover() {
+    if (this.peacefulExploration) return;
     const coverMat = material(this.scene, "sectorCoverMat", new Color3(0.11, 0.13, 0.15), new Color3(0.015, 0.018, 0.02));
     const stripeMat = material(this.scene, "sectorCoverStripeMat", amber.scale(0.55), amber.scale(0.18));
     this.coverNodes.forEach((node, index) => {
@@ -664,10 +762,11 @@ class GameWorld {
   private update(delta: number) {
     this.elapsed += delta; this.animateStorm(delta);
     if (this.state === "active") {
-      this.timer = Math.max(0, this.timer - delta); this.stormRadius = Math.max(8, 19 - ((150 - this.timer) / 150) * 11);
-      this.updateWeapon(delta); this.updatePlayer(delta); this.updateEnemies(delta); this.updateProjectiles(delta); this.updatePickups(delta); this.applyStormDamage(delta);
+      if (!this.peacefulExploration) this.timer = Math.max(0, this.timer - delta);
+      if (!this.peacefulExploration) this.stormRadius = Math.max(8, 19 - ((150 - this.timer) / 150) * 11);
+      this.updateWeapon(delta); this.updatePlayer(delta); if (!this.peacefulExploration) this.updateEnemies(delta); this.updateProjectiles(delta); this.updatePickups(delta); if (!this.peacefulExploration) this.applyStormDamage(delta);
       if (!this.peacefulExploration && this.enemies.every((enemy) => !enemy.alive)) this.finish("victory");
-      if (this.player.health <= 0 || this.timer <= 0) this.finish("defeat");
+      if (!this.peacefulExploration && (this.player.health <= 0 || this.timer <= 0)) this.finish("defeat");
     }
     this.playerRing.position.x = this.player.mesh.position.x; this.playerRing.position.z = this.player.mesh.position.z; this.playerRing.rotation.z += delta * 0.85; this.updateCamera();
     this.hudElapsed += delta; if (this.hudElapsed > 0.12) { this.hudElapsed = 0; this.emitHud(); }
@@ -700,7 +799,7 @@ class GameWorld {
     const movement = new Vector3(0, 0, 0);
     if (this.demo) {
       this.pointerTarget.copyFrom(new Vector3(0, 0, 28));
-      this.firePlayer();
+      if (!this.peacefulExploration) this.firePlayer();
     } else {
       if (this.pressed.has("w") || this.pressed.has("arrowup")) movement.z += 1;
       if (this.pressed.has("s") || this.pressed.has("arrowdown")) movement.z -= 1;

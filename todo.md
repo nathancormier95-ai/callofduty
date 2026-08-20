@@ -112,6 +112,12 @@
 - [x] Remove the procedural residential houses and road-layout geometry from the active map scene.
 - [x] Normalize, center, scale, and display the supplied GLB as the complete playable world under peaceful exploration controls.
 - [x] Verify the GLB map is visible and explorable on desktop and mobile, then publish and synchronize the source.
+
+## Google Earth Terrain Materials
+
+- [x] Inspect the GLB mesh structure and available geometry or material groups for surface classification.
+- [x] Assign distinct road, building, grass, and water materials using the strongest available GLB segmentation clues.
+- [x] Verify terrain-surface readability on desktop and mobile, then publish and synchronize the source.
 - [ ] Inspect the uploaded fog map asset and determine its file format and compatibility.
 - [ ] Review the supplied Sketchfab model page and identify its licensing and supported download options.
 - [ ] Design an original storm-battered industrial waterfront map that does not replicate a named commercial game or third-party environment.

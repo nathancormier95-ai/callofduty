@@ -203,8 +203,8 @@ export default function GameCanvas() {
 
       <section className="coast-scan hud-panel" aria-label="Full Google Earth map legend">
         <p>GOOGLE EARTH MAP // 07</p>
-        <div><i className="scan-amber" /> FULL TERRAIN <i className="scan-violet" /> FREE ROAM</div>
-        <span>USER MAP · PEACEFUL MODE</span>
+        <div><i className="scan-amber" /> ROAD + BUILDINGS <i className="scan-violet" /> GRASS + WATER</div>
+        <span>GRAY ROAD · ORANGE BUILDINGS · GREEN GRASS · BLUE WATER</span>
       </section>
 
 

@@ -13,6 +13,8 @@ import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { ShaderMaterial } from "@babylonjs/core/Materials/shaderMaterial";
+import { Effect } from "@babylonjs/core/Materials/effect";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { PointerEventTypes } from "@babylonjs/core/Events/pointerEvents";
@@ -83,6 +85,62 @@ function material(scene: Scene, name: string, color: Color3, emissive?: Color3) 
   result.specularColor = Color3.Black();
   result.emissiveColor = emissive ?? Color3.Black();
   return result;
+}
+
+function createTerrainClassificationMaterial(scene: Scene, bounds: { minimum: Vector3; maximum: Vector3 }) {
+  Effect.ShadersStore.terrainClassificationVertexShader = `
+    precision highp float;
+    attribute vec3 position;
+    attribute vec3 normal;
+    uniform mat4 world;
+    uniform mat4 worldViewProjection;
+    varying vec3 vPosition;
+    varying vec3 vNormal;
+    void main(void) {
+      vPosition = position;
+      vNormal = normalize(mat3(world) * normal);
+      gl_Position = worldViewProjection * vec4(position, 1.0);
+    }
+  `;
+  Effect.ShadersStore.terrainClassificationFragmentShader = `
+    precision highp float;
+    varying vec3 vPosition;
+    varying vec3 vNormal;
+    uniform vec3 minBounds;
+    uniform vec3 maxBounds;
+    float route(float value, float center, float width) {
+      return 1.0 - smoothstep(width, width * 2.2, abs(value - center));
+    }
+    void main(void) {
+      vec2 span = max(maxBounds.xz - minBounds.xz, vec2(0.001));
+      vec2 mapUv = clamp((vPosition.xz - minBounds.xz) / span, 0.0, 1.0);
+      float elevation = clamp((vPosition.y - minBounds.y) / max(maxBounds.y - minBounds.y, 0.001), 0.0, 1.0);
+      float flatness = clamp(normalize(vNormal).y, 0.0, 1.0);
+      float mainRoad = route(mapUv.x, 0.50 + sin(mapUv.y * 7.0) * 0.045, 0.038);
+      float westRoad = route(mapUv.x, 0.18 + mapUv.y * 0.29, 0.032);
+      float crossRoad = route(mapUv.y, 0.34 + mapUv.x * 0.19, 0.030);
+      float eastRoad = route(mapUv.y, 0.73 - mapUv.x * 0.26, 0.028);
+      float roadMask = max(max(mainRoad, westRoad), max(crossRoad, eastRoad)) * smoothstep(0.55, 0.94, flatness) * (1.0 - smoothstep(0.62, 0.84, elevation));
+      float waterMask = 1.0 - smoothstep(0.045, 0.085, elevation);
+      float buildingMask = smoothstep(0.68, 0.84, elevation) * smoothstep(0.36, 0.88, flatness);
+      vec3 grassLow = vec3(0.07, 0.24, 0.06);
+      vec3 grassHigh = vec3(0.26, 0.50, 0.13);
+      vec3 road = vec3(0.58, 0.60, 0.59);
+      vec3 building = vec3(0.92, 0.42, 0.20);
+      vec3 water = vec3(0.04, 0.57, 0.88);
+      vec3 color = mix(grassLow, grassHigh, elevation * 0.65 + flatness * 0.35);
+      color = mix(color, road, min(1.0, roadMask * 1.35));
+      color = mix(color, building, min(1.0, buildingMask * 1.16));
+      color = mix(color, water, waterMask);
+      float light = 0.68 + flatness * 0.32;
+      gl_FragColor = vec4(color * light, 1.0);
+    }
+  `;
+  const terrain = new ShaderMaterial("fullGoogleEarthTerrainMaterial", scene, { vertex: "terrainClassification", fragment: "terrainClassification" }, { attributes: ["position", "normal"], uniforms: ["world", "worldViewProjection", "minBounds", "maxBounds"] });
+  terrain.setVector3("minBounds", bounds.minimum);
+  terrain.setVector3("maxBounds", bounds.maximum);
+  terrain.backFaceCulling = false;
+  return terrain;
 }
 
 class GameWorld {
@@ -192,8 +250,7 @@ class GameWorld {
       root.position.z -= (scaled.minimum.z + scaled.maximum.z) / 2;
       root.position.y -= scaled.minimum.y;
 
-      const terrainMaterial = material(this.scene, "fullGoogleEarthTerrainMat", new Color3(0.29, 0.42, 0.23), new Color3(0.018, 0.028, 0.012));
-      terrainMaterial.backFaceCulling = false;
+      const terrainMaterial = createTerrainClassificationMaterial(this.scene, initial);
       visibleMeshes.forEach((mesh) => { if (mesh instanceof Mesh) mesh.material = terrainMaterial; });
 
       // The user-provided Google Earth model is the complete world; the prior photo map is only a load-time fallback.

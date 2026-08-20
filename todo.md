@@ -91,6 +91,12 @@
 - [x] Add the right-side campground/RV strip, dense treeline, and utility-pole/wire corridor with photo-matched daylight lighting.
 - [x] Relocate tactical cover, rivals, and pickups without obscuring the recognizable road, shoreline, and campground sightlines.
 - [x] Verify the rebuilt scene against the photograph on desktop and mobile, then publish and synchronize the source.
+
+## Peaceful Lakeside Exploration
+
+- [x] Pause all rival spawning, AI movement, attacks, and rival-count presentation.
+- [x] Preserve player movement, map exploration, pickups, and the daylight Lakeside Park environment.
+- [x] Verify enemy-free exploration on desktop and mobile, then publish and synchronize the source.
 - [ ] Inspect the uploaded fog map asset and determine its file format and compatibility.
 - [ ] Review the supplied Sketchfab model page and identify its licensing and supported download options.
 - [ ] Design an original storm-battered industrial waterfront map that does not replicate a named commercial game or third-party environment.

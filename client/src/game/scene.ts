@@ -48,6 +48,7 @@ export type HudState = {
   stormIntensity: number;
   lightning: boolean;
   mapStatus: "loading" | "ready" | "fallback";
+  explorationMode: boolean;
 };
 
 export type GameHandle = { scene: Scene; dispose: () => void };
@@ -94,6 +95,7 @@ class GameWorld {
   private pickups: Pickup[] = [];
   private readonly playerSpawn = new Vector3(3.55, 0.8, -16.8);
   private readonly coverNodes = [new Vector3(9.2, 0, -10.8), new Vector3(-9.2, 0, -8.8), new Vector3(9.4, 0, -1.5), new Vector3(-9.3, 0, 3.8), new Vector3(9.4, 0, 8.5), new Vector3(-9.2, 0, 14.6)];
+  private readonly peacefulExploration = true;
   private pressed = new Set<string>();
   private mobileMovement = new Vector3(0, 0, 0);
   private mobileAim = new Vector3(0, 0, 0);
@@ -599,7 +601,9 @@ class GameWorld {
   }
 
   private createMatchEntities() {
-    [new Vector3(-9.6, 0.7, -8.0), new Vector3(9.8, 0.7, -4.0), new Vector3(-9.5, 0.7, 1.8), new Vector3(9.9, 0.7, 5.4), new Vector3(-9.4, 0.7, 10.2), new Vector3(9.9, 0.7, 13.8), new Vector3(-11.6, 0.7, 15.4), new Vector3(13.2, 0.7, 17.4)].forEach((position) => this.enemies.push(this.createActor("enemy", position)));
+    if (!this.peacefulExploration) {
+      [new Vector3(-9.6, 0.7, -8.0), new Vector3(9.8, 0.7, -4.0), new Vector3(-9.5, 0.7, 1.8), new Vector3(9.9, 0.7, 5.4), new Vector3(-9.4, 0.7, 10.2), new Vector3(9.9, 0.7, 13.8), new Vector3(-11.6, 0.7, 15.4), new Vector3(13.2, 0.7, 17.4)].forEach((position) => this.enemies.push(this.createActor("enemy", position)));
+    }
     const lootRoute: Array<[Vector3, Pickup["kind"]]> = [
       [new Vector3(6.8, 0, -12.2), "med"], [new Vector3(-7.2, 0, -5.2), "ammo"], [new Vector3(7.0, 0, 1.8), "burst"], [new Vector3(-7.1, 0, 8.8), "armor"],
       [new Vector3(-10.4, 0, -1.8), "med"], [new Vector3(11.1, 0, 5.6), "ammo"], [new Vector3(-9.6, 0, 14.0), "burst"], [new Vector3(11.6, 0, 15.5), "armor"],
@@ -662,7 +666,7 @@ class GameWorld {
     if (this.state === "active") {
       this.timer = Math.max(0, this.timer - delta); this.stormRadius = Math.max(8, 19 - ((150 - this.timer) / 150) * 11);
       this.updateWeapon(delta); this.updatePlayer(delta); this.updateEnemies(delta); this.updateProjectiles(delta); this.updatePickups(delta); this.applyStormDamage(delta);
-      if (this.enemies.every((enemy) => !enemy.alive)) this.finish("victory");
+      if (!this.peacefulExploration && this.enemies.every((enemy) => !enemy.alive)) this.finish("victory");
       if (this.player.health <= 0 || this.timer <= 0) this.finish("defeat");
     }
     this.playerRing.position.x = this.player.mesh.position.x; this.playerRing.position.z = this.player.mesh.position.z; this.playerRing.rotation.z += delta * 0.85; this.updateCamera();
@@ -820,7 +824,7 @@ class GameWorld {
   private stormPressure() { return Math.max(0, Math.min(1, (19 - this.stormRadius) / 11)); }
   private beginAudioField() { if (!this.soundEnabled || typeof AudioContext === "undefined") return; if (!this.audioContext) this.audioContext = new AudioContext(); const context = this.audioContext; if (context.state === "suspended") context.resume().catch(() => undefined); if (!this.ambientOscillator) { const gain = context.createGain(); gain.gain.value = 0.012; const oscillator = context.createOscillator(); oscillator.type = "sine"; oscillator.frequency.value = 52; oscillator.connect(gain).connect(context.destination); oscillator.start(); this.ambientOscillator = oscillator; } }
   private pulseTone(frequency: number, duration: number, type: OscillatorType, gainValue: number) { if (!this.soundEnabled || !this.audioContext) return; const context = this.audioContext; const oscillator = context.createOscillator(); const gain = context.createGain(); oscillator.type = type; oscillator.frequency.value = frequency; gain.gain.setValueAtTime(gainValue, context.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration); oscillator.connect(gain).connect(context.destination); oscillator.start(); oscillator.stop(context.currentTime + duration); }
-  private emitHud() { const alternate = this.activeWeapon === "volt" ? this.scatterMagazine : this.magazine; window.dispatchEvent(new CustomEvent<HudState>("stormfall-hud", { detail: { health: Math.max(0, this.player.health), shield: this.player.health > 70 ? 3 : this.player.health > 35 ? 2 : 1, remaining: this.enemies.filter((enemy) => enemy.alive).length, timer: this.timer, stormRadius: this.stormRadius, toast: this.toast, matchState: this.state, streak: this.streak, ammo: this.currentMagazine(), reserve: this.currentReserve(), reloading: this.reloadTimer > 0, reloadProgress: this.reloadTimer > 0 ? (1 - this.reloadTimer / 1.1) * 100 : 0, hitConfirm: this.hitConfirmTimer > 0, weaponName: this.weaponName(), altWeaponName: this.activeWeapon === "volt" ? "BREACH-5" : "VOLT-9", altAmmo: alternate, muzzleFlash: this.muzzleFlashTimer > 0, damageFlash: this.damageFlashTimer > 0, damageDirection: this.damageDirection, stormIntensity: this.stormPressure(), lightning: this.lightningFlashTimer > 0, mapStatus: this.mapStatus } })); }
+  private emitHud() { const alternate = this.activeWeapon === "volt" ? this.scatterMagazine : this.magazine; window.dispatchEvent(new CustomEvent<HudState>("stormfall-hud", { detail: { health: Math.max(0, this.player.health), shield: this.player.health > 70 ? 3 : this.player.health > 35 ? 2 : 1, remaining: this.enemies.filter((enemy) => enemy.alive).length, timer: this.timer, stormRadius: this.stormRadius, toast: this.toast, matchState: this.state, streak: this.streak, ammo: this.currentMagazine(), reserve: this.currentReserve(), reloading: this.reloadTimer > 0, reloadProgress: this.reloadTimer > 0 ? (1 - this.reloadTimer / 1.1) * 100 : 0, hitConfirm: this.hitConfirmTimer > 0, weaponName: this.weaponName(), altWeaponName: this.activeWeapon === "volt" ? "BREACH-5" : "VOLT-9", altAmmo: alternate, muzzleFlash: this.muzzleFlashTimer > 0, damageFlash: this.damageFlashTimer > 0, damageDirection: this.damageDirection, stormIntensity: this.stormPressure(), lightning: this.lightningFlashTimer > 0, mapStatus: this.mapStatus, explorationMode: this.peacefulExploration } })); }
   dispose() { this.listeners.forEach(([target, type, listener]) => target.removeEventListener(type, listener)); this.projectiles.forEach((projectile) => projectile.mesh.dispose()); this.ambientOscillator?.stop(); this.audioContext?.close().catch(() => undefined); }
 }
 

@@ -29,6 +29,7 @@ const initialHud: HudState = {
   stormIntensity: 0,
   lightning: false,
   mapStatus: "ready",
+  explorationMode: true,
 };
 
 function timeLabel(seconds: number) {
@@ -190,9 +191,9 @@ export default function GameCanvas() {
         <p className="storm-distance">RING AT {hud.stormRadius.toFixed(1)}M</p>
       </section>
 
-      <aside className="remain-panel hud-panel" aria-label="Remaining rivals">
-        <span className="remain-number">{hud.remaining}</span>
-        <span className="remain-label">RIVALS<br />REMAIN</span>
+      <aside className="remain-panel hud-panel" aria-label={hud.explorationMode ? "Peaceful exploration mode" : "Remaining rivals"}>
+        <span className="remain-number">{hud.explorationMode ? "—" : hud.remaining}</span>
+        <span className="remain-label">{hud.explorationMode ? <>EXPLORE<br />FREELY</> : <>RIVALS<br />REMAIN</>}</span>
       </aside>
 
       <section className="field-note hud-panel" aria-live="polite">

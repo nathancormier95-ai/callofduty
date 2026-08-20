@@ -14,6 +14,7 @@ import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
+import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { PointerEventTypes } from "@babylonjs/core/Events/pointerEvents";
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
@@ -91,8 +92,8 @@ class GameWorld {
   private enemies: Actor[] = [];
   private projectiles: Projectile[] = [];
   private pickups: Pickup[] = [];
-  private readonly playerSpawn = new Vector3(-4.8, 0.8, -14.2);
-  private readonly coverNodes = [new Vector3(-4.8, 0, -8.2), new Vector3(-4.8, 0, -1.2), new Vector3(-4.8, 0, 6.2), new Vector3(-11.6, 0, 3.8), new Vector3(-11.0, 0, 10.8), new Vector3(2.2, 0, 10.4)];
+  private readonly playerSpawn = new Vector3(3.55, 0.8, -16.8);
+  private readonly coverNodes = [new Vector3(9.2, 0, -10.8), new Vector3(-9.2, 0, -8.8), new Vector3(9.4, 0, -1.5), new Vector3(-9.3, 0, 3.8), new Vector3(9.4, 0, 8.5), new Vector3(-9.2, 0, 14.6)];
   private pressed = new Set<string>();
   private mobileMovement = new Vector3(0, 0, 0);
   private mobileAim = new Vector3(0, 0, 0);
@@ -183,24 +184,26 @@ class GameWorld {
       root.position.z -= (scaled.minimum.z + scaled.maximum.z) / 2;
       root.position.y -= scaled.minimum.y + 0.42;
 
-      visibleMeshes.forEach((mesh) => { mesh.visibility = 0.16; });
+      // The user photo and exact procedural reconstruction are now the visible map.
+      // Keep the legacy GLB available in memory without letting its terrain alter the photo match.
+      visibleMeshes.forEach((mesh) => { mesh.setEnabled(false); });
       this.ground.visibility = 1;
       this.mapStatus = "ready";
-      this.toast = "USER ROAD MAP READY — BREAKWATER REACH LIVE";
+      this.toast = "LAKESIDE PARK ROAD MAP READY";
     } catch (error) {
       console.warn("Uploaded GLB map did not load; retaining the procedural arena.", error);
       this.mapStatus = "ready";
-      this.toast = "USER ROAD MAP ACTIVE — BREAKWATER REACH LIVE";
+      this.toast = "LAKESIDE PARK ROAD MAP ACTIVE";
     }
     this.emitHud();
   }
 
   private createEnvironment() {
-    this.scene.clearColor = new Color4(0.015, 0.052, 0.092, 1);
-    this.scene.ambientColor = new Color3(0.24, 0.33, 0.31);
+    this.scene.clearColor = new Color4(0.48, 0.72, 0.95, 1);
+    this.scene.ambientColor = new Color3(0.58, 0.66, 0.61);
     this.scene.fogMode = Scene.FOGMODE_EXP2;
-    this.scene.fogColor = new Color3(0.04, 0.11, 0.16);
-    this.scene.fogDensity = 0.006;
+    this.scene.fogColor = new Color3(0.48, 0.72, 0.95);
+    this.scene.fogDensity = 0.001;
     const ground = MeshBuilder.CreateGround("breakwaterLand", { width: 46, height: 46, subdivisions: 2 }, this.scene);
     ground.material = material(this.scene, "coastalLandMat", new Color3(0.22, 0.31, 0.24), new Color3(0.014, 0.024, 0.017));
     ground.isPickable = true;
@@ -209,12 +212,12 @@ class GameWorld {
     outer.material = material(this.scene, "outerTideMat", new Color3(0.018, 0.14, 0.20), new Color3(0.008, 0.046, 0.075));
 
     const sun = new HemisphericLight("ridgeSun", new Vector3(-0.35, 1, 0.45), this.scene);
-    sun.intensity = 1.05;
-    sun.diffuse = new Color3(0.58, 0.67, 0.63);
-    sun.groundColor = new Color3(0.05, 0.08, 0.10);
+    sun.intensity = 1.38;
+    sun.diffuse = new Color3(1.0, 0.89, 0.70);
+    sun.groundColor = new Color3(0.19, 0.24, 0.18);
     const stormLight = new PointLight("stormLight", new Vector3(0, 11, 0), this.scene);
     stormLight.diffuse = violet;
-    stormLight.intensity = 1.6;
+    stormLight.intensity = 0.42;
     stormLight.range = 25;
     this.lightningLight = new PointLight("lightningFlash", new Vector3(0, 12, 0), this.scene);
     this.lightningLight.diffuse = new Color3(0.72, 0.77, 1);
@@ -222,9 +225,11 @@ class GameWorld {
     this.lightningLight.range = 54;
     const signalLight = new PointLight("signalLight", new Vector3(0, 4, 0), this.scene);
     signalLight.diffuse = amber;
-    signalLight.intensity = 1.5;
+    signalLight.intensity = 0.78;
     signalLight.range = 15;
-    new GlowLayer("outpostGlow", this.scene, { blurKernelSize: 28 }).intensity = 0.2;
+    new GlowLayer("outpostGlow", this.scene, { blurKernelSize: 28 }).intensity = 0.11;
+
+    return this.createLakesideParkEnvironment();
 
     const sandstone = material(this.scene, "coastalStoneMat", new Color3(0.23, 0.22, 0.19), new Color3(0.018, 0.018, 0.015));
     const weathered = material(this.scene, "harborWallMat", new Color3(0.15, 0.22, 0.25), new Color3(0.009, 0.016, 0.02));
@@ -430,13 +435,120 @@ class GameWorld {
     return ground;
   }
 
+  /** Lakeside Park daylight visual system: literal photo composition, straight rising road, left shore, right campground. */
+  private createLakesideParkEnvironment() {
+    const grass = material(this.scene, "parkGrassMat", new Color3(0.18, 0.33, 0.12), new Color3(0.018, 0.034, 0.01));
+    const gravel = material(this.scene, "parkGravelMat", new Color3(0.38, 0.34, 0.26), new Color3(0.014, 0.012, 0.009));
+    const asphalt = material(this.scene, "parkAsphaltMat", new Color3(0.12, 0.13, 0.13), new Color3(0.006, 0.006, 0.006));
+    const whiteMark = material(this.scene, "parkWhiteMarkMat", new Color3(0.85, 0.86, 0.82), new Color3(0.04, 0.04, 0.035));
+    const yellowMark = material(this.scene, "parkYellowMarkMat", new Color3(0.94, 0.64, 0.12), new Color3(0.10, 0.055, 0.006));
+    const wood = material(this.scene, "parkWoodMat", new Color3(0.31, 0.20, 0.11), new Color3(0.018, 0.010, 0.004));
+    const poleMetal = material(this.scene, "parkPoleMetalMat", new Color3(0.42, 0.41, 0.36), new Color3(0.018, 0.018, 0.014));
+    const water = material(this.scene, "parkWaterMat", new Color3(0.07, 0.31, 0.42), new Color3(0.025, 0.11, 0.16));
+    water.specularColor = new Color3(0.78, 0.88, 0.92); water.specularPower = 96;
+    const ground = MeshBuilder.CreateGround("lakesideParkLand", { width: 58, height: 66, subdivisions: 2 }, this.scene);
+    ground.material = grass; ground.isPickable = true;
+
+    const tile = (name: string, x: number, z: number, width: number, depth: number, y: number, mat: StandardMaterial) => {
+      const mesh = MeshBuilder.CreateBox(name, { width, height: 0.09, depth }, this.scene);
+      mesh.position.set(x, y, z); mesh.material = mat; return mesh;
+    };
+    const tree = (name: string, x: number, z: number, scale: number, tint: Color3) => {
+      const trunk = MeshBuilder.CreateCylinder(`${name}Trunk`, { height: 2.3 * scale, diameter: 0.25 * scale, tessellation: 7 }, this.scene);
+      trunk.position.set(x, 1.15 * scale, z); trunk.material = wood;
+      const crown = MeshBuilder.CreateSphere(`${name}Crown`, { diameter: 2.45 * scale, segments: 8 }, this.scene);
+      crown.position.set(x, 3.0 * scale, z); crown.scaling.set(1.08, 1.16, 0.94); crown.material = material(this.scene, `${name}LeafMat`, tint, tint.scale(0.035));
+    };
+    const rv = (name: string, x: number, z: number, rotation: number, stripe: Color3) => {
+      const body = MeshBuilder.CreateBox(`${name}Body`, { width: 2.65, height: 1.7, depth: 5.6 }, this.scene);
+      body.position.set(x, 1.02, z); body.rotation.y = rotation; body.material = material(this.scene, `${name}BodyMat`, new Color3(0.78, 0.78, 0.70), new Color3(0.022, 0.022, 0.018));
+      const cap = MeshBuilder.CreateBox(`${name}Cap`, { width: 2.83, height: 0.15, depth: 5.82 }, this.scene);
+      cap.parent = body; cap.position.set(0, 0.93, 0); cap.material = poleMetal;
+      const stripeBand = MeshBuilder.CreateBox(`${name}Stripe`, { width: 2.69, height: 0.25, depth: 4.4 }, this.scene);
+      stripeBand.parent = body; stripeBand.position.set(0, -0.15, -0.12); stripeBand.material = material(this.scene, `${name}StripeMat`, stripe, stripe.scale(0.06));
+      for (const offset of [-0.92, 0.92]) {
+        const window = MeshBuilder.CreateBox(`${name}Window${offset}`, { width: 2.70, height: 0.48, depth: 0.74 }, this.scene);
+        window.parent = body; window.position.set(0, 0.27, offset); window.material = material(this.scene, `${name}WindowMat${offset}`, new Color3(0.11, 0.30, 0.38), new Color3(0.018, 0.07, 0.09));
+      }
+    };
+    const utilityPole = (name: string, x: number, z: number, height = 9.3) => {
+      const pole = MeshBuilder.CreateCylinder(`${name}Pole`, { height, diameter: 0.16, tessellation: 8 }, this.scene);
+      pole.position.set(x, height / 2, z); pole.material = poleMetal;
+      const crossbar = MeshBuilder.CreateBox(`${name}Crossbar`, { width: 2.25, height: 0.12, depth: 0.16 }, this.scene);
+      crossbar.position.set(x, height - 1.05, z); crossbar.material = poleMetal;
+    };
+
+    // Exact photo road: camera begins on the right lane, looking uphill along the double-yellow route.
+    tile("parkHighway", 0, 2.2, 15.8, 58, 0.12, asphalt);
+    tile("westGravelVerge", -8.95, 2.2, 2.25, 58, 0.085, gravel);
+    tile("eastGravelVerge", 8.95, 2.2, 2.25, 58, 0.085, gravel);
+    tile("whiteShoulderWest", -6.88, 2.2, 0.22, 58, 0.18, whiteMark);
+    tile("whiteShoulderEast", 6.88, 2.2, 0.22, 58, 0.18, whiteMark);
+    tile("doubleYellowWest", -0.20, 2.2, 0.16, 58, 0.19, yellowMark);
+    tile("doubleYellowEast", 0.20, 2.2, 0.16, 58, 0.19, yellowMark);
+
+    // Left shore: the photo’s lake edge, wooden rail, small beach, seating, and campground sign.
+    tile("lakesideWater", -17.5, 1.8, 18, 57, 0.065, water);
+    tile("lakesideBeach", -11.0, 3.8, 5.5, 18, 0.10, gravel);
+    for (let z = -11; z <= 12; z += 4.6) {
+      const post = MeshBuilder.CreateCylinder(`shoreRailPost${z}`, { height: 1.2, diameter: 0.16, tessellation: 7 }, this.scene);
+      post.position.set(-8.4, 0.66, z); post.material = wood;
+      const rail = MeshBuilder.CreateBox(`shoreRail${z}`, { width: 0.16, height: 0.14, depth: 4.75 }, this.scene);
+      rail.position.set(-8.4, 0.98, z + 2.3); rail.material = wood;
+    }
+    [[-13.4, -0.6, new Color3(0.86, 0.20, 0.13)], [-14.4, 1.0, new Color3(0.88, 0.23, 0.16)]].forEach(([x, z, tint], index) => {
+      const chair = MeshBuilder.CreateBox(`beachChair${index}`, { width: 0.72, height: 0.34, depth: 0.86 }, this.scene);
+      chair.position.set(x as number, 0.30, z as number); chair.rotation.x = -0.28; chair.material = material(this.scene, `beachChairMat${index}`, tint as Color3, (tint as Color3).scale(0.05));
+    });
+    const signTexture = new DynamicTexture("lakesideParkSignTexture", { width: 900, height: 560 }, this.scene, true);
+    const signContext = signTexture.getContext() as unknown as CanvasRenderingContext2D;
+    signContext.fillStyle = "#d34f38"; signContext.fillRect(0, 0, 900, 560);
+    signContext.strokeStyle = "#f7e4a4"; signContext.lineWidth = 24; signContext.strokeRect(22, 22, 856, 516);
+    signContext.fillStyle = "#fff4cf"; signContext.font = "bold 128px sans-serif"; signContext.textAlign = "center";
+    signContext.fillText("Lakeside", 450, 205); signContext.fillText("Park", 450, 335);
+    signContext.font = "bold 62px sans-serif"; signContext.fillText("Campground", 450, 445); signTexture.update();
+    const signMaterial = new StandardMaterial("lakesideParkSignMat", this.scene);
+    signMaterial.diffuseTexture = signTexture; signMaterial.emissiveTexture = signTexture; signMaterial.specularColor = Color3.Black(); signMaterial.backFaceCulling = false;
+    const signPost = MeshBuilder.CreateCylinder("lakesideParkSignPost", { height: 3.05, diameter: 0.18, tessellation: 8 }, this.scene);
+    signPost.position.set(-10.5, 1.52, 4.1); signPost.material = wood;
+    const sign = MeshBuilder.CreatePlane("lakesideParkCampgroundSign", { width: 4.15, height: 2.58 }, this.scene);
+    sign.position.set(-10.5, 3.15, 4.03); sign.material = signMaterial;
+
+    // Right side: dense daylight treeline, utility corridor and the visible RV campground.
+    const leafPalette = [new Color3(0.09, 0.31, 0.10), new Color3(0.16, 0.42, 0.13), new Color3(0.35, 0.43, 0.09), new Color3(0.43, 0.30, 0.08)];
+    [[-15, 1.05], [-10, 0.92], [-5, 1.06], [1, 0.94], [7, 1.04], [13, 0.92], [19, 1.08], [25, 0.94]].forEach(([z, scale], index) => tree(`rightTree${index}`, 16.2 + (index % 2) * 1.25, z, scale, leafPalette[index % leafPalette.length]));
+    [[-13, 0.98], [-7, 0.88], [0, 0.95], [8, 0.91], [15, 1.03], [22, 0.90]].forEach(([z, scale], index) => tree(`leftTree${index}`, -14.6 - (index % 2) * 1.3, z, scale, leafPalette[(index + 2) % leafPalette.length]));
+    [[-17, 9.2], [-7, 9.5], [4, 9.8], [15, 10.1], [26, 10.4]].forEach(([z, height], index) => utilityPole(`roadUtility${index}`, 8.0, z, height));
+    for (let z = -12; z <= 20; z += 10.7) {
+      const wire = MeshBuilder.CreateBox(`utilityWire${z}`, { width: 0.045, height: 0.045, depth: 10.8 }, this.scene);
+      wire.position.set(8.0, 8.15, z); wire.material = poleMetal;
+      const secondWire = wire.clone(`utilityWireSecond${z}`); secondWire.position.x += 0.62; secondWire.position.y += 0.26;
+    }
+    rv("campRvOne", 13.1, -5.6, -0.05, new Color3(0.24, 0.54, 0.53));
+    rv("campRvTwo", 14.1, 6.1, -0.04, new Color3(0.55, 0.32, 0.15));
+    rv("campRvThree", 12.4, 17.3, -0.04, new Color3(0.23, 0.37, 0.62));
+    [[11.0, -9.2], [11.8, 1.7], [11.2, 12.2]].forEach(([x, z], index) => {
+      const utilityBox = MeshBuilder.CreateBox(`campUtilityBox${index}`, { width: 1.2, height: 1.25, depth: 0.85 }, this.scene);
+      utilityBox.position.set(x, 0.62, z); utilityBox.material = material(this.scene, `campUtilityMat${index}`, new Color3(0.34, 0.36, 0.32), new Color3(0.02, 0.02, 0.018));
+    });
+
+    // The user’s actual photograph stays in the forward view as the literal horizon and road-matching backdrop.
+    const photoMaterial = new StandardMaterial("lakesidePhotoBackdropMat", this.scene);
+    const photoTexture = new Texture(uploadedRoadPhotoUrl, this.scene, false, true, Texture.TRILINEAR_SAMPLINGMODE);
+    photoMaterial.diffuseTexture = photoTexture; photoMaterial.emissiveTexture = photoTexture; photoMaterial.specularColor = Color3.Black(); photoMaterial.backFaceCulling = false;
+    const photoBackdrop = MeshBuilder.CreatePlane("lakesidePhotoGroundTruth", { width: 31, height: 41.3 }, this.scene);
+    photoBackdrop.position.set(0, -6.4, 31.5); photoBackdrop.material = photoMaterial;
+    return ground;
+  }
+
   private createStorm() {
     const storm = MeshBuilder.CreateTorus("stormBoundary", { diameter: 38, thickness: 0.24, tessellation: 96 }, this.scene);
     storm.rotation.x = Math.PI / 2; storm.position.y = 0.14;
-    storm.material = material(this.scene, "stormBoundaryMat", violet.scale(0.38), violet);
+    storm.material = material(this.scene, "stormBoundaryMat", violet.scale(0.08), violet.scale(0.14));
     for (let i = 0; i < 18; i += 1) {
       const pylon = MeshBuilder.CreateCylinder(`stormPylon${i}`, { height: 0.95 + (i % 3) * 0.18, diameterTop: 0.04, diameterBottom: 0.18, tessellation: 6 }, this.scene);
       pylon.material = material(this.scene, `stormPylonMat${i}`, violet.scale(0.45), violet.scale(0.7));
+      pylon.visibility = 0.05;
       this.stormPylons.push(pylon);
     }
     return storm;
@@ -446,7 +558,8 @@ class GameWorld {
     const halo = MeshBuilder.CreateTorus("stormSkyHalo", { diameter: 38, thickness: 0.14, tessellation: 96 }, this.scene);
     halo.rotation.x = Math.PI / 2;
     halo.position.y = 3.9;
-    halo.material = material(this.scene, "stormSkyHaloMat", violet.scale(0.24), violet.scale(0.72));
+    halo.material = material(this.scene, "stormSkyHaloMat", violet.scale(0.04), violet.scale(0.08));
+    halo.visibility = 0.04;
     return halo;
   }
 
@@ -486,10 +599,10 @@ class GameWorld {
   }
 
   private createMatchEntities() {
-    [new Vector3(-4.8, 0.7, -5.0), new Vector3(-4.8, 0.7, 3.2), new Vector3(-4.8, 0.7, 10.2), new Vector3(-11.6, 0.7, -5.8), new Vector3(-12.8, 0.7, 3.6), new Vector3(-11.8, 0.7, 12.5), new Vector3(2.2, 0.7, 8.2), new Vector3(8.2, 0.7, 13.4)].forEach((position) => this.enemies.push(this.createActor("enemy", position)));
+    [new Vector3(-9.6, 0.7, -8.0), new Vector3(9.8, 0.7, -4.0), new Vector3(-9.5, 0.7, 1.8), new Vector3(9.9, 0.7, 5.4), new Vector3(-9.4, 0.7, 10.2), new Vector3(9.9, 0.7, 13.8), new Vector3(-11.6, 0.7, 15.4), new Vector3(13.2, 0.7, 17.4)].forEach((position) => this.enemies.push(this.createActor("enemy", position)));
     const lootRoute: Array<[Vector3, Pickup["kind"]]> = [
-      [new Vector3(-4.8, 0, -11.0), "med"], [new Vector3(-4.8, 0, -3.0), "ammo"], [new Vector3(-4.8, 0, 4.5), "burst"], [new Vector3(-4.8, 0, 11.5), "armor"],
-      [new Vector3(-12.2, 0, -7.8), "med"], [new Vector3(-13.1, 0, -2.3), "ammo"], [new Vector3(-12.0, 0, 7.8), "burst"], [new Vector3(2.8, 0, 9.6), "armor"],
+      [new Vector3(6.8, 0, -12.2), "med"], [new Vector3(-7.2, 0, -5.2), "ammo"], [new Vector3(7.0, 0, 1.8), "burst"], [new Vector3(-7.1, 0, 8.8), "armor"],
+      [new Vector3(-10.4, 0, -1.8), "med"], [new Vector3(11.1, 0, 5.6), "ammo"], [new Vector3(-9.6, 0, 14.0), "burst"], [new Vector3(11.6, 0, 15.5), "armor"],
     ];
     lootRoute.forEach(([position, kind], index) => this.pickups.push(this.createPickup(position, kind, index)));
   }
@@ -561,8 +674,8 @@ class GameWorld {
     this.storm.scaling.set(this.stormRadius / 19, this.stormRadius / 19, this.stormRadius / 19);
     this.stormHalo.scaling.set(this.stormRadius / 19, this.stormRadius / 19, this.stormRadius / 19);
     this.stormHalo.rotation.z += delta * (0.16 + pressure * 0.32);
-    this.scene.fogDensity = 0.006 + pressure * 0.028;
-    this.scene.fogColor = new Color3(0.05 + pressure * 0.05, 0.10 - pressure * 0.03, 0.17 + pressure * 0.16);
+    this.scene.fogDensity = 0.001 + pressure * 0.012;
+    this.scene.fogColor = new Color3(0.48 - pressure * 0.18, 0.72 - pressure * 0.30, 0.95 - pressure * 0.40);
     this.lightningTimer -= delta;
     this.lightningFlashTimer = Math.max(0, this.lightningFlashTimer - delta);
     if (this.lightningTimer <= 0) {
@@ -582,8 +695,8 @@ class GameWorld {
   private updatePlayer(delta: number) {
     const movement = new Vector3(0, 0, 0);
     if (this.demo) {
-      const angle = this.elapsed * 0.56; movement.set(Math.cos(angle), 0, Math.sin(angle));
-      const nearest = this.nearestEnemy(); if (nearest) this.pointerTarget.copyFrom(nearest.mesh.position); this.firePlayer();
+      this.pointerTarget.copyFrom(new Vector3(0, 0, 28));
+      this.firePlayer();
     } else {
       if (this.pressed.has("w") || this.pressed.has("arrowup")) movement.z += 1;
       if (this.pressed.has("s") || this.pressed.has("arrowdown")) movement.z -= 1;

@@ -1,6 +1,6 @@
 # Assets
 
-**Art direction:** Voltage Wilds — an original tactical survival arena with a user-supplied campus terrain, weathered signal amber for player agency, coral-red rivals, and a saturated violet storm boundary. The GLB map provides the primary visible terrain; the procedural systems continue to provide gameplay actors, pickups, and storm pressure.
+**Art direction:** Lakeside Park daylight survival — an original tactical survival arena reconstructed around the user-provided Lakeside Park Campground road photograph. The photo sets the literal road perspective, shoreline, park landmark, utility corridor, treeline, and campground/RV side; procedural geometry provides playable scale, actors, cover, pickups, and storm pressure.
 
 ## User-Supplied 3D Map
 
@@ -14,6 +14,7 @@
 | --- | --- | --- | --- |
 | arena terrain | Seamless mossy blue-slate grass and earth surface, low contrast for unit readability. | 5m tile | `/manus-storage/stormfall-arena-terrain_cc981b78.png` |
 | storm panel | Wide indigo electrical rain texture for the pre-match visual field. | 1920x1080, fullscreen overlay | `/manus-storage/stormfall-arena-storm-panel_779b47ef.png` |
+| Lakeside Park road photo | User-provided vertical daylight photograph with the required uphill highway, shoreline park, utility poles, treeline, and campground composition. Used directly as the forward backdrop and road-surface visual reference. | 1440x1920 | `/manus-storage/breakwater-lakeside-road_48f1d55e.jpg` |
 
 ## Sprites and UI Art
 

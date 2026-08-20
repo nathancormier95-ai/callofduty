@@ -1,4 +1,4 @@
-// Voltage Wilds visual system: full-bleed tactical arena, corner-bound field instruments,
+// Lakeside Park visual system: daylight road arena, corner-bound field instruments,
 // Barlow Condensed urgency, DM Sans support copy, signal amber for player agency.
 // React is the picture frame; Babylon and client/src/game/scene.ts own the game.
 
@@ -156,7 +156,7 @@ export default function GameCanvas() {
         <div className="brand-lockup">
           <span className="brand-mark" aria-hidden="true"><i /></span>
           <div>
-            <p className="eyebrow">BREAKWATER REACH // SURVIVAL PROTOCOL</p>
+            <p className="eyebrow">LAKESIDE PARK // SURVIVAL PROTOCOL</p>
             <p className="brand-wordmark">STORMFALL <span>ARENA</span></p>
           </div>
         </div>
@@ -200,10 +200,10 @@ export default function GameCanvas() {
         <span>{hud.toast}</span>
       </section>
 
-      <section className="coast-scan hud-panel" aria-label="Breakwater Reach field legend">
-        <p>BREAKWATER GRID // 07</p>
-        <div><i className="scan-amber" /> HARBOR ROUTE <i className="scan-violet" /> STORM EDGE</div>
-        <span>MARINA · RIVER CUT · PARKLINE</span>
+      <section className="coast-scan hud-panel" aria-label="Lakeside Park field legend">
+        <p>LAKESIDE PARK // 07</p>
+        <div><i className="scan-amber" /> SHORE ROAD <i className="scan-violet" /> STORM EDGE</div>
+        <span>BEACH · CAMPGROUND · HILL ROUTE</span>
       </section>
 
 
@@ -267,7 +267,7 @@ export default function GameCanvas() {
         <div className="map-ring map-ring-two" />
         <span className="map-player" />
         <i className="map-rival one" /><i className="map-rival two" /><i className="map-rival three" /><i className="map-rival four" />
-        <p>BREAKWATER REACH // 07</p>
+        <p>LAKESIDE PARK // 07</p>
       </section>
 
       {hud.matchState === "briefing" && (

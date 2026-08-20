@@ -32,3 +32,15 @@ Build a full-screen original browser survival arena with a 3D top-down battlefie
   - No missing textures, visual placeholders, or browser console errors appear during the captured run.
   - Reference consistency: high three-quarter camera, blue-slate terrain, amber player/pickups, coral rivals, violet storm boundary, and corner-anchored tactical HUD.
 
+## Exact Lakeside Park Photo Rebuild
+
+**Ground-truth visual:** The user-provided photograph is the required composition, not merely a texture source. The playable view must look up the two-lane asphalt road toward the uphill horizon, with the double-yellow centerline and white shoulder line leading forward. The left side must read as a shoreline park with a wooden guardrail, small beach, waterside seats, and park-sign landmark. The right side must read as a campground/RV strip behind utility poles and a dense mixed treeline. Bright late-day blue sky, sunlit vegetation, and the actual road photo backdrop take priority over the prior storm-night harbor presentation.
+
+| Risk slice | Implementation response | Visible proof |
+| --- | --- | --- |
+| Perspective mismatch | Move the spawn to the right shoulder and make the road run straight along the camera’s forward axis with a rising grade. | The first active view points uphill along a wide road, matching the photograph’s vanishing point. |
+| Landmark clutter | Replace town/marina silhouettes with a single left shoreline park, sign, beach rail, and a right campground/RV corridor. | Both sides of the road are immediately legible and preserve the reference’s sightline. |
+| Tactical readability | Move gameplay cover off the middle of the highway and use roadside guardrails, RVs, utility cabinets, benches, and campground features. | The road centerline remains continuously visible while fighting can still use cover. |
+| Mobile performance | Use simple procedural geometry and one direct photo backdrop/road texture without additional large assets. | Portrait play retains full touch controls and recognizable scene composition. |
+
+**Verification criteria:** A desktop and mobile screenshot must visibly show the uphill double-yellow road, shoulder line, shoreline park/sign/guardrail to the left, overhead utility corridor, right campground/RV strip, and direct user photo in the forward composition.

@@ -82,6 +82,15 @@
 - [x] Add the photograph as the primary visible roadside map surface/backdrop.
 - [x] Align the player lane, road route, cover, and enemy approach to the photo composition.
 - [x] Verify the photo-based scene on desktop and mobile, then save the new map checkpoint.
+
+## Exact Lakeside Park Photo Rebuild
+
+- [x] Reframe the spawn and over-the-shoulder camera around the photograph’s uphill highway perspective.
+- [x] Rebuild the road with the photographed double-yellow centerline, solid shoulder line, gravel verge, and forward rising grade.
+- [x] Add the left shoreline, wooden guardrail, park-sign landmark, small beach, and waterside seating seen in the reference.
+- [x] Add the right-side campground/RV strip, dense treeline, and utility-pole/wire corridor with photo-matched daylight lighting.
+- [x] Relocate tactical cover, rivals, and pickups without obscuring the recognizable road, shoreline, and campground sightlines.
+- [x] Verify the rebuilt scene against the photograph on desktop and mobile, then publish and synchronize the source.
 - [ ] Inspect the uploaded fog map asset and determine its file format and compatibility.
 - [ ] Review the supplied Sketchfab model page and identify its licensing and supported download options.
 - [ ] Design an original storm-battered industrial waterfront map that does not replicate a named commercial game or third-party environment.

@@ -1,4 +1,4 @@
-// Federation Street visual system: photo-based daylight neighborhood, corner-bound field instruments,
+// Full Google Earth visual system: user-supplied low-relief terrain, corner-bound field instruments,
 // Barlow Condensed urgency, DM Sans support copy, signal amber for player agency.
 // React is the picture frame; Babylon and client/src/game/scene.ts own the game.
 
@@ -157,7 +157,7 @@ export default function GameCanvas() {
         <div className="brand-lockup">
           <span className="brand-mark" aria-hidden="true"><i /></span>
           <div>
-            <p className="eyebrow">FEDERATION STREET // EXPLORATION ROUTE</p>
+            <p className="eyebrow">GOOGLE EARTH MAP // PEACEFUL EXPLORE</p>
             <p className="brand-wordmark">STORMFALL <span>ARENA</span></p>
           </div>
         </div>
@@ -201,10 +201,10 @@ export default function GameCanvas() {
         <span>{hud.toast}</span>
       </section>
 
-      <section className="coast-scan hud-panel" aria-label="Lakeside Park field legend">
-        <p>FEDERATION STREET // 07</p>
-        <div><i className="scan-amber" /> NEIGHBORHOOD ROUTE <i className="scan-violet" /> FIELD TRAIL</div>
-        <span>YARDS · WOODLOT · SHORE EDGE</span>
+      <section className="coast-scan hud-panel" aria-label="Full Google Earth map legend">
+        <p>GOOGLE EARTH MAP // 07</p>
+        <div><i className="scan-amber" /> FULL TERRAIN <i className="scan-violet" /> FREE ROAM</div>
+        <span>USER MAP · PEACEFUL MODE</span>
       </section>
 
 
@@ -267,17 +267,17 @@ export default function GameCanvas() {
         <div className="map-ring map-ring-one" />
         <div className="map-ring map-ring-two" />
         <span className="map-player" />
-        <i className="map-rival one" /><i className="map-rival two" /><i className="map-rival three" /><i className="map-rival four" />
-        <p>FEDERATION ST // 07</p>
+        {!hud.explorationMode && <><i className="map-rival one" /><i className="map-rival two" /><i className="map-rival three" /><i className="map-rival four" /></>}
+        <p>GOOGLE EARTH // 07</p>
       </section>
 
       {hud.matchState === "briefing" && (
         <section className="briefing-card" aria-label="Match briefing">
           <span className="briefing-logo" aria-hidden="true"><i /></span>
-          <p className="eyebrow">SINGLE-PLAYER SURVIVAL RUN</p>
-          <h1>THE STORM IS MOVING.<br /><em>SO ARE THEY.</em></h1>
-          <p className="briefing-copy">Scavenge amber supply crates, break line of sight behind cover, and outlast every rival before the storm folds the arena.</p>
-          <button className="drop-button" onClick={launch}><span>ENTER THE STORM</span><b>↗</b></button>
+          <p className="eyebrow">USER MAP // PEACEFUL EXPLORATION</p>
+          <h1>THE MAP IS<br /><em>YOURS TO EXPLORE.</em></h1>
+          <p className="briefing-copy">Explore the user-provided Google Earth terrain at your own pace. Enemies and storm damage are paused.</p>
+          <button className="drop-button" onClick={launch}><span>ENTER THE MAP</span><b>↗</b></button>
           <p className="briefing-tip">WASD / TOUCH TO MOVE · CLICK / HOLD TO FIRE</p>
         </section>
       )}

@@ -21,6 +21,7 @@
 | Federation yard | User-provided grass-track and low-house reference. Used at the residential yard branch. | 1080x1459 | `/manus-storage/Screenshot_20260820_105842_GoogleEarth_4f694ce3.jpg` |
 | Federation lane junction | User-provided unmarked paved-lane reference with driveway branches. Used at the inner neighborhood junction. | 1080x1092 | `/manus-storage/Screenshot_20260820_105821_GoogleEarth_7cbdfb47.jpg` |
 | Federation aerial layout | User-provided aerial neighborhood and shoreline image. Used to organize the connected road, woodlot, field, and waterfront layout. | 1037x700 | `/manus-storage/Screenshot_20260820_111133_GoogleEarth_0340d014.jpg` |
+| Full Google Earth map | User-provided optimized Google Earth GLB, loaded as the complete low-relief playable terrain. The former procedural houses and road geometry are disabled when this model is ready. | 2.2 MB GLB | `/manus-storage/federation-street-full-map_be02d3ad.glb` |
 
 ## Sprites and UI Art
 

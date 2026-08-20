@@ -105,6 +105,13 @@
 - [x] Replace the divided highway/campground visuals with narrow unmarked neighborhood asphalt, grass verges, driveways, yards, homes, bins, and a structured utility-pole corridor.
 - [x] Use the supplied street-level photos as visible rotating/backdrop reference points along the route, while retaining peaceful exploration and pickups.
 - [x] Verify the neighborhood map on desktop and mobile, then publish and synchronize the source.
+
+## Full Google Earth GLB Map
+
+- [x] Inspect the uploaded ImageToStl Google Earth GLB and stage it for deployment-safe loading.
+- [x] Remove the procedural residential houses and road-layout geometry from the active map scene.
+- [x] Normalize, center, scale, and display the supplied GLB as the complete playable world under peaceful exploration controls.
+- [x] Verify the GLB map is visible and explorable on desktop and mobile, then publish and synchronize the source.
 - [ ] Inspect the uploaded fog map asset and determine its file format and compatibility.
 - [ ] Review the supplied Sketchfab model page and identify its licensing and supported download options.
 - [ ] Design an original storm-battered industrial waterfront map that does not replicate a named commercial game or third-party environment.

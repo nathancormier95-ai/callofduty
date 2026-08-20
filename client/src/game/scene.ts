@@ -61,7 +61,7 @@ const amber = new Color3(0.961, 0.71, 0.267);
 const coral = new Color3(0.95, 0.30, 0.27);
 const violet = new Color3(0.53, 0.28, 1.0);
 const charcoal = new Color3(0.06, 0.08, 0.12);
-const uploadedMapUrl = "/manus-storage/atlas-sector-user-optimized_415eddfe.glb";
+const uploadedMapUrl = "/manus-storage/federation-street-full-map_be02d3ad.glb";
 const uploadedRoadPhotoUrl = "/manus-storage/breakwater-lakeside-road_48f1d55e.jpg";
 const federationRoadPhotoUrl = "/manus-storage/Screenshot_20260820_105936_GoogleEarth_0cceee2e.jpg";
 const federationCurvePhotoUrl = "/manus-storage/Screenshot_20260820_105909_GoogleEarth_1951288f.jpg";
@@ -129,8 +129,8 @@ class GameWorld {
   private audioContext?: AudioContext;
   private ambientOscillator?: OscillatorNode;
   private streak = 0;
-  private toast = "FEDERATION STREET PHOTO ROUTE READY";
-  private mapStatus: HudState["mapStatus"] = "ready";
+  private toast = "LOADING FULL GOOGLE EARTH MAP";
+  private mapStatus: HudState["mapStatus"] = "loading";
   private hudElapsed = 0;
   private demo = new URLSearchParams(window.location.search).has("demo");
   private readonly listeners: Array<[EventTarget, string, EventListener]> = [];
@@ -162,9 +162,9 @@ class GameWorld {
       const visibleMeshes = imported.meshes.filter((mesh) => mesh.getTotalVertices() > 0);
       if (visibleMeshes.length === 0) throw new Error("The uploaded model did not contain visible mesh geometry.");
 
-      const root = new TransformNode("uploadedTerrainRoot", this.scene);
+      const root = new TransformNode("uploadedFullMapRoot", this.scene);
       imported.meshes.filter((mesh) => !mesh.parent).forEach((mesh) => { mesh.parent = root; });
-      visibleMeshes.forEach((mesh) => { mesh.isPickable = false; });
+      visibleMeshes.forEach((mesh) => { mesh.isPickable = true; });
 
       const calculateBounds = () => {
         let minimum = new Vector3(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
@@ -183,25 +183,27 @@ class GameWorld {
       const height = initial.maximum.y - initial.minimum.y;
       if (!Number.isFinite(span) || span <= 0) throw new Error("The uploaded model did not expose usable terrain bounds.");
 
-      const horizontalScale = Math.max(0.02, Math.min(1, 36 / span));
-      const verticalScale = Number.isFinite(height) && height > 0 ? Math.min(horizontalScale, 0.68 / height) : horizontalScale;
+      const horizontalScale = Math.max(0.02, Math.min(1.35, 58 / span));
+      const verticalScale = Number.isFinite(height) && height > 0 ? Math.min(horizontalScale, 0.62 / height) : horizontalScale;
       root.scaling.set(horizontalScale, verticalScale, horizontalScale);
       root.computeWorldMatrix(true);
       const scaled = calculateBounds();
       root.position.x -= (scaled.minimum.x + scaled.maximum.x) / 2;
       root.position.z -= (scaled.minimum.z + scaled.maximum.z) / 2;
-      root.position.y -= scaled.minimum.y + 0.42;
+      root.position.y -= scaled.minimum.y;
 
-      // The user photo and exact procedural reconstruction are now the visible map.
-      // Keep the legacy GLB available in memory without letting its terrain alter the photo match.
-      visibleMeshes.forEach((mesh) => { mesh.setEnabled(false); });
-      this.ground.visibility = 1;
+      const terrainMaterial = material(this.scene, "fullGoogleEarthTerrainMat", new Color3(0.29, 0.42, 0.23), new Color3(0.018, 0.028, 0.012));
+      terrainMaterial.backFaceCulling = false;
+      visibleMeshes.forEach((mesh) => { if (mesh instanceof Mesh) mesh.material = terrainMaterial; });
+
+      // The user-provided Google Earth model is the complete world; the prior photo map is only a load-time fallback.
+      this.environmentMeshes.forEach((mesh) => mesh.setEnabled(false));
       this.mapStatus = "ready";
-      this.toast = "FEDERATION STREET MAP READY";
+      this.toast = "FULL GOOGLE EARTH MAP READY";
     } catch (error) {
-      console.warn("Uploaded GLB map did not load; retaining the procedural arena.", error);
-      this.mapStatus = "ready";
-      this.toast = "FEDERATION STREET MAP ACTIVE";
+      console.warn("Uploaded full map GLB did not load; retaining the procedural fallback.", error);
+      this.mapStatus = "fallback";
+      this.toast = "FULL MAP FAILED — PHOTO ROUTE ACTIVE";
     }
     this.emitHud();
   }
